@@ -1,18 +1,19 @@
 #ifndef _DFA_H_
 #define _DFA_H_
 #include "Ebuf.h"
+#include "linked_list.h"
 
 typedef bool UPPER;
 
-class Dfa_node {
+class DfaNode {
 	public : 
-		virtual int match (Ebuf& ebuf) const = 0;
+		virtual int match (Ebuf& ebuf, unsigned int startOffset) const = 0;
 };
 
-class SingleWordNode : Dfa_node {
+class SingleWordNode : public DfaNode {
 	public :
 		SingleWordNode (unsigned char from, unsigned char to, bool IsNotExp);
-		int match (Ebuf& ebuf) const;
+		int match (Ebuf& ebuf, unsigned int startOffset) const;
 		
 		SingleWordNode* getDotNode () const;
 		/* 
@@ -27,6 +28,18 @@ class SingleWordNode : Dfa_node {
 		const unsigned char from;
 		const unsigned char to;
 		const bool IsNotExp;
+};
+
+template <class T>
+class ConcatNode : public DfaNode {
+public :
+	ConcatNode (linked_list<T>* token_list);
+	~ConcatNode ();
+	int match (Ebuf& ebuf, unsigned int startOffset) const;
+	
+private :
+	const linked_list<T>* token_list;
+	
 };
 
 #endif /* _DFA_H_ */

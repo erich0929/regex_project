@@ -34,6 +34,11 @@ int main(int argc, const char *argv[])
 	}
 	
 	list.setNewIterator ();
+	while (iter.hasNext ()) {
+		cout << "iterator's data : " << iter.next () << endl;
+	}
 	
+	//linked_list<int> copi (list); 
+	cout << "die??" << endl;
 	return 0;
 }

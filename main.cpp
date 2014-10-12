@@ -38,5 +38,9 @@ int main(int argc, const char *argv[])
 		cout << "iterator's data : " << iter.next () << endl;
 	}
 	
+	linked_list<int> copi (list); 
+	copi.toString ();
+	
+	cout << "die??" << endl;
 	return 0;
 }

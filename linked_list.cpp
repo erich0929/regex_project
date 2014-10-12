@@ -22,12 +22,32 @@ template <class T>
 linked_list<T>::linked_list () : head (NULL), current (NULL) {}
 
 template <class T>
+linked_list<T>::linked_list (linked_list<T>& source) {
+	/* const 변수는 const 변수에만 대입가능 */
+	source.setNewIterator ();
+	Iterator<T>& iter = source;
+	linked_node<T>* temp = NULL;
+	if (iter.hasNext ()) {
+	cout << "let's cp" << endl;
+		this -> head = new linked_node<T> (*iter.next ());
+		temp = this -> head;
+	}
+	
+	while (iter.hasNext ()) {
+		temp -> next = new linked_node<T> (*iter.next ());
+		temp = temp -> next;
+	}
+}
+
+template <class T>
 linked_list<T>::~linked_list () {
+	cout << "let' delete" << endl;
 	linked_node <T>* iter = this -> head;
 	linked_node <T>* temp;
 	if (iter != NULL) {
 		while (iter != NULL) {
 			temp = iter -> next;
+			cout << "im dying" <<endl;
 			delete iter;
 			iter = temp;
 		}
@@ -78,8 +98,8 @@ bool linked_list<T>::hasNext () const {
 }
 
 template <class T>
-T linked_list<T>::next () {
-	T res = this -> current -> getData ();
+linked_node<T>* linked_list<T>::next () {
+	linked_node<T>* res = this -> current;
 	this -> current = this -> current -> next;
 	return res;
 }
@@ -90,6 +110,8 @@ void linked_list<T>::setNewIterator () {
 }
 
 /* 명시적 인스턴스화를 소스 구현 밑에 해야만 한다 */
+
 template class linked_list <int>;
 template class linked_node <int>;
 template class Iterator <int>;
+
