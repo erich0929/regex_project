@@ -1,4 +1,5 @@
 #include "linked_list.h"
+#include "Dfa.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -6,11 +7,19 @@
 using namespace std;
 
 template <class T>
-linked_node<T>::linked_node (const T data) : next (NULL), data (data) {}
+linked_node<T>::linked_node (T* data) : next (NULL) {
+	this -> data = new T (*data);
+}
+
 
 template <class T>
-T linked_node<T>::getData () const {
-    return this -> data;    
+linked_node<T>::~linked_node () {
+	delete data;
+}
+
+template <class T>
+T* linked_node<T>::getData () const {
+    return (this -> data);    
 }
 
 template <class T>
@@ -28,7 +37,6 @@ linked_list<T>::linked_list (linked_list<T>& source) {
 	Iterator<T>& iter = source;
 	linked_node<T>* temp = NULL;
 	if (iter.hasNext ()) {
-	cout << "let's cp" << endl;
 		this -> head = new linked_node<T> (*iter.next ());
 		temp = this -> head;
 	}
@@ -41,13 +49,11 @@ linked_list<T>::linked_list (linked_list<T>& source) {
 
 template <class T>
 linked_list<T>::~linked_list () {
-	cout << "let' delete" << endl;
 	linked_node <T>* iter = this -> head;
 	linked_node <T>* temp;
 	if (iter != NULL) {
 		while (iter != NULL) {
 			temp = iter -> next;
-			cout << "im dying" <<endl;
 			delete iter;
 			iter = temp;
 		}
@@ -111,7 +117,7 @@ void linked_list<T>::setNewIterator () {
 
 /* 명시적 인스턴스화를 소스 구현 밑에 해야만 한다 */
 
-template class linked_list <int>;
-template class linked_node <int>;
-template class Iterator <int>;
+template class linked_list <SingleWordNode>;
+template class linked_node <SingleWordNode>;
+template class Iterator <SingleWordNode>;
 

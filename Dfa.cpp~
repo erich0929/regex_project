@@ -1,5 +1,6 @@
 #include "Dfa.h"
 #include "linked_list.h"
+#include <stdio.h>
 
 SingleWordNode::SingleWordNode (unsigned char from, unsigned char to, bool IsNotExp)
 	: from (from), to (to), IsNotExp (IsNotExp) {
@@ -7,7 +8,7 @@ SingleWordNode::SingleWordNode (unsigned char from, unsigned char to, bool IsNot
 }
 
 int SingleWordNode::match (Ebuf& ebuf, unsigned int startOffset) const {
-	unsigned char current = ebuf.getNext (0);
+	unsigned char current = ebuf.getNext (startOffset);
 	bool IsAccept = false;
 	
 	if (current >=from && current <= to) IsAccept = true;
@@ -16,15 +17,15 @@ int SingleWordNode::match (Ebuf& ebuf, unsigned int startOffset) const {
 	return IsAccept ? 1 : -1;
 }
 
-SingleWordNode* SingleWordNode::getDotNode () const {
+SingleWordNode* SingleWordNode::getDotNode () {
 	return new SingleWordNode ('\0', '\0', true);
 }
 
-SingleWordNode* SingleWordNode::getDigitNode (const UPPER IsUpper) const {
+SingleWordNode* SingleWordNode::getDigitNode (const UPPER IsUpper) {
 	return new SingleWordNode ('0', '9', IsUpper);
 }
 
-SingleWordNode* SingleWordNode::getBoundaryNode (const UPPER IsUpper) const {
+SingleWordNode* SingleWordNode::getBoundaryNode (const UPPER IsUpper)  {
 	return new SingleWordNode (' ', ' ', IsUpper);
 }
 
@@ -42,10 +43,27 @@ ConcatNode<T>::ConcatNode (linked_list<T>* token_list) : token_list (NULL) {
 
 template <class T>
 ConcatNode<T>::~ConcatNode () {
-		
+	delete this -> token_list;
 }
 
+template <class T>
+int ConcatNode<T>::match (Ebuf& ebuf, unsigned int startOffset) const {
+	this -> token_list -> setNewIterator ();
+	Iterator<T>& iter = *(this -> token_list);
+	unsigned int acceptedOffset = 0;
+	unsigned int offset = 0;
+	linked_node<T>* temp;
+	T* token;
+	while (iter.hasNext ()) {
+		temp = iter.next ();
+		token = temp -> getData ();
+		if ((offset = token -> match (ebuf, startOffset)) == -1) return -1;
+		acceptedOffset += offset;
+	}
+	return acceptedOffset;
+}
 
+template class ConcatNode<SingleWordNode>;
 
 
 

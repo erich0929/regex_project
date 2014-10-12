@@ -17,12 +17,14 @@
 template <class T>
 class linked_node {
     public :
-        linked_node (const T data);
-        T getData () const;
+        linked_node (const T* data);
+        //linked_node (linked_node<T>& node);
+        ~linked_node ();
+        T* getData () const;
         void append (linked_node<T>* next);
         linked_node<T>* next;
     private :
-        T data;
+        T* data;
        
 };
 

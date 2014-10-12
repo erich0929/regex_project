@@ -17,12 +17,14 @@
 template <class T>
 class linked_node {
     public :
-        linked_node (const T data);
-        T getData () const;
+        linked_node (T* data);
+        //linked_node (linked_node<T>& node);
+        ~linked_node ();
+        T* getData () const;
         void append (linked_node<T>* next);
         linked_node<T>* next;
     private :
-        T data;
+        T* data;
        
 };
 
@@ -55,7 +57,11 @@ public :
     void insert (linked_node<T>* node);
     void toString ();
 
-	/* implement Iterator Interface */
+	/* implement Iterator Interface 
+	 * linked_list를 Iterator 로 참조해서 사용할 때
+	 * 복사생성자를 사용하지 말라. 복사생성자는 내부적으로 
+	 * setNewIterator를 사용해 current 값을 초기화시킨다
+	 */
     bool hasNext () const;
     linked_node<T>* next ();
     void setNewIterator ();

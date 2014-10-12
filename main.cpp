@@ -2,45 +2,42 @@
 #include <iostream>
 #include "Ebuf.h"
 #include "linked_list.h"
+#include "Dfa.h"
 
 using namespace std;
 
 int main(int argc, const char *argv[])
 {
-	char buf [] = "Hello world 헬로 월드\n";
+	char buf [] = "010*a\n";
 	Ebuf ebuf0 (buf);
 	Ebuf ebuf1 (ebuf0);
 	Ebuf ebuf2 = ebuf1;
 	char ch;
 	int i = 0;
-	ebuf0.advance (3);
+	ebuf0.advance (0);
 	while (ch = ebuf0.getNext (i)) {
 		printf ("%c", ch);
 		i++;
 	}
 	
+	linked_list<SingleWordNode>* token_list = new linked_list<SingleWordNode> ();
+	DfaNode* allSingle = SingleWordNode::getDotNode ();
+	linked_node<SingleWordNode>* token1 = new linked_node<SingleWordNode> ((SingleWordNode*)allSingle);
+	DfaNode* singleDigit = SingleWordNode::getDigitNode (false);
+	linked_node<SingleWordNode>* token2 = new linked_node<SingleWordNode> ((SingleWordNode*)singleDigit);
 	
-	linked_list <int> list;
-	linked_node <int> node2 (2);
-	linked_node <int>* node1  = new linked_node<int> (1);
+	token_list -> insert (token2);
+	token_list -> insert (token2);
+	token_list -> insert (token2);
+	token_list -> insert (token1);
 	
-	cout << (void*) &node1 << endl;
-	list.insert (node1);
-	list.insert (&node2);
-	list.toString ();
-	Iterator<int>& iter = list;
-	while (iter.hasNext ()) {
-		cout << "iterator's data : " << iter.next () << endl;
-	}
+	DfaNode* concat = new ConcatNode<SingleWordNode> (token_list);
+	cout << "match : " << concat -> match (ebuf0, 0) << endl;
+	delete allSingle;
+	delete singleDigit;
+	delete token1;
+	delete token2;
+	delete token_list;
 	
-	list.setNewIterator ();
-	while (iter.hasNext ()) {
-		cout << "iterator's data : " << iter.next () << endl;
-	}
-	
-	linked_list<int> copi (list); 
-	copi.toString ();
-	
-	cout << "die??" << endl;
 	return 0;
 }
