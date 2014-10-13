@@ -55,6 +55,7 @@ public :
 	 * 잘 대비해 놓아야 한다.
 	 */
     void insert (linked_node<T>* node);
+    void insert (T* data);
     void toString ();
 
 	/* implement Iterator Interface 

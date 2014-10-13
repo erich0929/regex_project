@@ -71,11 +71,34 @@ void linked_list<T>::insert (linked_node<T>* node) {
 	 */
 	 
 	linked_node <T>* newNode = new linked_node<T> (*node);
-    if (head == NULL) {
-        head = newNode;
-        current = head;
+    if (this -> head == NULL) {
+        this -> head = newNode;
+        this -> current = this -> head;
     } else {
-        linked_node<T>* iter = head;
+        linked_node<T>* iter = this -> head;
+        while (iter -> next != NULL) {
+        	iter = iter -> next;
+        }
+        iter -> next = newNode;
+    }
+}
+
+template <class T>
+void linked_list<T>::insert (T* data) {
+	
+	/* 
+	 * Warning !!
+	 * linked_node 의 defualt 복사생성자를 이용해도 좋도록 
+	 * linekd_node 의 멤버변수 data의 type인 class T의 대입연사자를
+	 * 잘 대비해 놓아야 한다.
+	 */
+	 
+	linked_node <T>* newNode = new linked_node<T> (data);
+    if (this -> head == NULL) {
+        this -> head = newNode;
+        this -> current = this -> head;
+    } else {
+        linked_node<T>* iter = this -> head;
         while (iter -> next != NULL) {
         	iter = iter -> next;
         }

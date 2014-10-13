@@ -22,22 +22,22 @@ int main(int argc, const char *argv[])
 	
 	linked_list<SingleWordNode>* token_list = new linked_list<SingleWordNode> ();
 	DfaNode* allSingle = SingleWordNode::getDotNode ();
-	linked_node<SingleWordNode>* token1 = new linked_node<SingleWordNode> ((SingleWordNode*)allSingle);
 	DfaNode* singleDigit = SingleWordNode::getDigitNode (false);
-	linked_node<SingleWordNode>* token2 = new linked_node<SingleWordNode> ((SingleWordNode*)singleDigit);
+	//linked_node<SingleWordNode>* token2 = new linked_node<SingleWordNode> ((SingleWordNode*)singleDigit);
 	
-	token_list -> insert (token2);
-	token_list -> insert (token2);
-	token_list -> insert (token2);
-	token_list -> insert (token1);
+	token_list -> insert ((SingleWordNode*) singleDigit);
+	token_list -> insert ((SingleWordNode*) singleDigit);
+	token_list -> insert ((SingleWordNode*) allSingle);
+	token_list -> insert ((SingleWordNode*) allSingle);
 	
 	DfaNode* concat = new ConcatNode<SingleWordNode> (token_list);
 	cout << "match : " << concat -> match (ebuf0, 0) << endl;
+	delete token_list;
+	
 	delete allSingle;
 	delete singleDigit;
-	delete token1;
-	delete token2;
-	delete token_list;
+	
+	
 	
 	return 0;
 }

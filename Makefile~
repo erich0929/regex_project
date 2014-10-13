@@ -11,6 +11,7 @@ all : Target Dfa.o Ebuf.o linked_list.o main.cpp
 	$(CC) -o Target/bin/main main.cpp -L./ $(LIBS)
 	mv $(LIBFILE)* Target/lib 
 	
+	
 Target : 
 	mkdir Target; mkdir Target/bin; mkdir Target/lib 
 
@@ -22,6 +23,7 @@ Ebuf.o : Ebuf.cpp
 	
 linked_list.o : linked_list.cpp
 	$(CC) -fPIC -c linked_list.cpp
+	
 test : all
 	@echo [TEST] :
 	@Target/bin/main
