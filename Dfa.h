@@ -4,6 +4,7 @@
 #include "linked_list.h"
 
 typedef bool UPPER;
+class linked_list;
 
 class DfaNode {
 public:
@@ -34,28 +35,29 @@ private:
 	const bool IsNotExp;
 };
 
-template <class T>
+
 class ConcatNode : public DfaNode {
 public:
-	ConcatNode(linked_list<T>* token_list);
+	ConcatNode(linked_list* token_list);
 	~ConcatNode();
 	
 	int match(Ebuf& ebuf, unsigned int startOffset) const;
 	DfaNode* clone ();
 	
 private:
-	linked_list<T>* token_list;
+	linked_list* token_list;
 
 };
 
-template <class T>
+/*
 class StarNode : public DfaNode {
 public:
-	StarNode (T* token);
+	StarNode (DfaNode* token);
 	~StarNode ();
 	int match (Ebuf& buf, unsigned int startOffset);
 	DfaNode* clone ();
 private:
-	T* token;
+	DfaNode* token;
 };
+*/
 #endif /* _DFA_H_ */

@@ -20,7 +20,7 @@ int main(int argc, const char *argv[])
 		i++;
 	}
 	
-	linked_list<DfaNode>* token_list = new linked_list<DfaNode> ();
+	linked_list* token_list = new linked_list ();
 	DfaNode* allSingle = SingleWordNode::getDotNode ();
 	DfaNode* singleDigit = SingleWordNode::getDigitNode (false);
 	//linked_node<SingleWordNode>* token2 = new linked_node<SingleWordNode> ((SingleWordNode*)singleDigit);
@@ -30,7 +30,7 @@ int main(int argc, const char *argv[])
 	token_list -> insert (allSingle);
 	token_list -> insert (allSingle);
 	
-	DfaNode* concat = new ConcatNode<DfaNode> (token_list);
+	DfaNode* concat = new ConcatNode (token_list);
 	cout << "match : " << concat -> match (ebuf0, 0) << endl;
 	delete token_list;
 	

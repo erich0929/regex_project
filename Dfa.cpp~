@@ -46,27 +46,27 @@ SingleWordNode* SingleWordNode::getBoundaryNode(const UPPER IsUpper)
  * linked_list의 복사생성자가 잘 정의되어 있어야 한다.
  */
 
-template <class T>
-ConcatNode<T>::ConcatNode(linked_list<T>* token_list) : token_list(NULL)
+
+ConcatNode::ConcatNode(linked_list* token_list) : token_list(NULL)
 {
-		this -> token_list = new linked_list<T> (*token_list); /* 복사생성자의 이용 */
+		this -> token_list = new linked_list (*token_list); /* 복사생성자의 이용 */
 }
 
-template <class T>
-ConcatNode<T>::~ConcatNode()
+
+ConcatNode::~ConcatNode()
 {
 		delete this -> token_list;
 }
 
-template <class T>
-int ConcatNode<T>::match(Ebuf& ebuf, unsigned int startOffset) const
+
+int ConcatNode::match(Ebuf& ebuf, unsigned int startOffset) const
 {
 		this -> token_list -> setNewIterator();
-		Iterator<T>& iter = *(this -> token_list);
+		Iterator& iter = *(this -> token_list);
 		unsigned int acceptedOffset = 0;
 		unsigned int offset = 0;
-		linked_node<T>* temp;
-		T* token;
+		linked_node* temp;
+		DfaNode* token;
 		while (iter.hasNext()) {
 				temp = iter.next();
 				token = temp -> getData();
@@ -76,21 +76,22 @@ int ConcatNode<T>::match(Ebuf& ebuf, unsigned int startOffset) const
 		return acceptedOffset;
 }
 
-DfaNode* ConcatNode<T>::clone () {
+
+DfaNode* ConcatNode::clone () {
 		return new ConcatNode (*this);
 }
 
 /* implement StarNode */
-template <class T>
-StarNode<T>::StarNode(T* token) {
-		//this -> token = new T (*token);
+
+StarNode::StarNode(DfaNode* token) {
+		//this -> token = new DfaNode (*token);
 }
 
 
-template class ConcatNode <DfaNode>;
-//template class StarNode <DfaNode>;
+//template class ConcatNode ;
+//template class StarNode ;
 //template class StarNode <SingleWordNode>;
-//template class StarNode <ConcatNode<T>>;
+//template class StarNode <ConcatNode>;
 
 
 

@@ -6,51 +6,51 @@
 
 using namespace std;
 
-template <class T>
-linked_node<T>::linked_node (const T* data) : next (NULL) {
+
+linked_node::linked_node (DfaNode* data) : next (NULL) {
 	this -> data = data -> clone ();
 }
 
 
-template <class T>
-linked_node<T>::~linked_node () {
+
+linked_node::~linked_node () {
 	delete data;
 }
 
-template <class T>
-T* linked_node<T>::getData () const {
+
+DfaNode* linked_node::getData () const {
     return (this -> data);    
 }
 
-template <class T>
-void linked_node<T>::append (linked_node<T>* next) {
+
+void linked_node::append (linked_node* next) {
     this -> next = next;
 }
 
-template <class T>
-linked_list<T>::linked_list () : head (NULL), current (NULL) {}
 
-template <class T>
-linked_list<T>::linked_list (linked_list<T>& source) {
+linked_list::linked_list () : head (NULL), current (NULL) {}
+
+
+linked_list::linked_list (linked_list& source) {
 	/* const 변수는 const 변수에만 대입가능 */
 	source.setNewIterator ();
-	Iterator<T>& iter = source;
-	linked_node<T>* temp = NULL;
+	Iterator& iter = source;
+	linked_node* temp = NULL;
 	if (iter.hasNext ()) {
-		this -> head = new linked_node<T> (*iter.next ());
+		this -> head = new linked_node (*iter.next ());
 		temp = this -> head;
 	}
 	
 	while (iter.hasNext ()) {
-		temp -> next = new linked_node<T> (*iter.next ());
+		temp -> next = new linked_node (*iter.next ());
 		temp = temp -> next;
 	}
 }
 
-template <class T>
-linked_list<T>::~linked_list () {
-	linked_node <T>* iter = this -> head;
-	linked_node <T>* temp;
+
+linked_list::~linked_list () {
+	linked_node * iter = this -> head;
+	linked_node * temp;
 	if (iter != NULL) {
 		while (iter != NULL) {
 			temp = iter -> next;
@@ -60,22 +60,22 @@ linked_list<T>::~linked_list () {
 	} 
 }
 
-template <class T>
-void linked_list<T>::insert (linked_node<T>* node) {
+
+void linked_list::insert (linked_node* node) {
 	
 	/* 
 	 * Warning !!
 	 * linked_node 의 defualt 복사생성자를 이용해도 좋도록 
-	 * linekd_node 의 멤버변수 data의 type인 class T의 대입연사자를
+	 * linekd_node 의 멤버변수 data의 type인 class DfaNode의 대입연사자를
 	 * 잘 대비해 놓아야 한다.
 	 */
 	 
-	linked_node <T>* newNode = new linked_node<T> (*node);
+	linked_node * newNode = new linked_node (*node);
     if (this -> head == NULL) {
         this -> head = newNode;
         this -> current = this -> head;
     } else {
-        linked_node<T>* iter = this -> head;
+        linked_node* iter = this -> head;
         while (iter -> next != NULL) {
         	iter = iter -> next;
         }
@@ -83,22 +83,22 @@ void linked_list<T>::insert (linked_node<T>* node) {
     }
 }
 
-template <class T>
-void linked_list<T>::insert (T* data) {
+
+void linked_list::insert (DfaNode* data) {
 	
 	/* 
 	 * Warning !!
 	 * linked_node 의 defualt 복사생성자를 이용해도 좋도록 
-	 * linekd_node 의 멤버변수 data의 type인 class T의 대입연사자를
+	 * linekd_node 의 멤버변수 data의 type인 class DfaNode의 대입연사자를
 	 * 잘 대비해 놓아야 한다.
 	 */
 	 
-	linked_node <T>* newNode = new linked_node<T> (data);
+	linked_node * newNode = new linked_node (data);
     if (this -> head == NULL) {
         this -> head = newNode;
         this -> current = this -> head;
     } else {
-        linked_node<T>* iter = this -> head;
+        linked_node* iter = this -> head;
         while (iter -> next != NULL) {
         	iter = iter -> next;
         }
@@ -106,9 +106,9 @@ void linked_list<T>::insert (T* data) {
     }
 }
 
-template <class T>
-void linked_list<T>::toString () {
-	linked_node <T>* iter = this -> head;
+
+void linked_list::toString () {
+	linked_node * iter = this -> head;
 	unsigned int count = 1; 
 	if (head != NULL) {
 		cout << "Linked_list : {" << endl;
@@ -121,26 +121,26 @@ void linked_list<T>::toString () {
 }
 
 /* implement Iterator Interface */
-template <class T>
-bool linked_list<T>::hasNext () const {
+
+bool linked_list::hasNext () const {
 	return (this -> current == NULL) ? false : true;
 }
 
-template <class T>
-linked_node<T>* linked_list<T>::next () {
-	linked_node<T>* res = this -> current;
+
+linked_node* linked_list::next () {
+	linked_node* res = this -> current;
 	this -> current = this -> current -> next;
 	return res;
 }
 
-template <class T>
-void linked_list<T>::setNewIterator () {
+
+void linked_list::setNewIterator () {
 	this -> current = this -> head;
 }
 
 /* 명시적 인스턴스화를 소스 구현 밑에 해야만 한다 */
 
-template class linked_list <DfaNode>;
-template class linked_node <DfaNode>;
-template class Iterator <DfaNode>;
+//template class linked_list ;
+//template class linked_node ;
+//template class Iterator ;
 
