@@ -17,7 +17,7 @@
 template <class T>
 class linked_node {
     public :
-        linked_node (const T* data);
+        linked_node (T* data);
         //linked_node (linked_node<T>& node);
         ~linked_node ();
         T* getData () const;

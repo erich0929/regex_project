@@ -2,12 +2,13 @@ CC = g++
 LIBFILE = libhgRegex
 OBJECTS = Dfa.o Ebuf.o linked_list.o
 LIBS = -lhgRegex
+VERSION = 0.2.1
 TARGET = all
 
 all : Target Dfa.o Ebuf.o linked_list.o main.cpp
-	$(CC) -shared -Wl,-soname,$(LIBFILE).so.0 -o $(LIBFILE).so.0.0.0 $(OBJECTS)
-	ln -s $(LIBFILE).so.0.0.0 $(LIBFILE).so
-	ln -s $(LIBFILE).so.0.0.0 $(LIBFILE).so.0
+	$(CC) -shared -Wl,-soname,$(LIBFILE).so.0 -o $(LIBFILE).so.$(VERSION) $(OBJECTS)
+	ln -s $(LIBFILE).so.$(VERSION) $(LIBFILE).so
+	ln -s $(LIBFILE).so.$(VERSION) $(LIBFILE).so.0
 	$(CC) -o Target/bin/main main.cpp -L./ $(LIBS)
 	mv $(LIBFILE)* Target/lib 
 	

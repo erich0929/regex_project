@@ -8,7 +8,7 @@ using namespace std;
 
 int main(int argc, const char *argv[])
 {
-	char buf [] = "01a\n";
+	char buf [] = "010*a\n";
 	Ebuf ebuf0 (buf);
 	Ebuf ebuf1 (ebuf0);
 	Ebuf ebuf2 = ebuf1;
@@ -20,24 +20,24 @@ int main(int argc, const char *argv[])
 		i++;
 	}
 	
-	linked_list<SingleWordNode>* token_list = new linked_list<SingleWordNode> ();
+	linked_list<DfaNode>* token_list = new linked_list<DfaNode> ();
 	DfaNode* allSingle = SingleWordNode::getDotNode ();
-	linked_node<SingleWordNode>* token1 = new linked_node<SingleWordNode> ((SingleWordNode*)allSingle);
 	DfaNode* singleDigit = SingleWordNode::getDigitNode (false);
-	linked_node<SingleWordNode>* token2 = new linked_node<SingleWordNode> ((SingleWordNode*)singleDigit);
+	//linked_node<SingleWordNode>* token2 = new linked_node<SingleWordNode> ((SingleWordNode*)singleDigit);
 	
-	token_list -> insert (token2);
-	token_list -> insert (token2);
-	token_list -> insert (token2);
-	token_list -> insert (token1);
+	token_list -> insert (singleDigit);
+	token_list -> insert (singleDigit);
+	token_list -> insert (allSingle);
+	token_list -> insert (allSingle);
 	
 	DfaNode* concat = new ConcatNode<SingleWordNode> (token_list);
 	cout << "match : " << concat -> match (ebuf0, 0) << endl;
+	delete token_list;
+	
 	delete allSingle;
 	delete singleDigit;
-	delete token1;
-	delete token2;
-	delete token_list;
+	
+	
 	
 	return 0;
 }

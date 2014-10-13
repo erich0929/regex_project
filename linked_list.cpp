@@ -7,8 +7,8 @@
 using namespace std;
 
 template <class T>
-linked_node<T>::linked_node (const T* data) : next (NULL) {
-	this -> data = new T (*data);
+linked_node<T>::linked_node (T* data) : next (NULL) {
+	this -> data = data -> clone ();
 }
 
 
@@ -140,7 +140,7 @@ void linked_list<T>::setNewIterator () {
 
 /* 명시적 인스턴스화를 소스 구현 밑에 해야만 한다 */
 
-template class linked_list <SingleWordNode>;
-template class linked_node <SingleWordNode>;
-template class Iterator <SingleWordNode>;
+template class linked_list <DfaNode>;
+template class linked_node <DfaNode>;
+template class Iterator <DfaNode>;
 
