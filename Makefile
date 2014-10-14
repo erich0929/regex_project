@@ -2,7 +2,7 @@ CC = g++
 LIBFILE = libhgRegex
 OBJECTS = Dfa.o Ebuf.o linked_list.o
 LIBS = -lhgRegex
-VERSION = 0.3.1
+VERSION = 0.5.0
 TARGET = all
 
 all : Target Dfa.o Ebuf.o linked_list.o main.cpp
