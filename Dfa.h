@@ -4,20 +4,26 @@
 #include "linked_list.h"
 
 typedef bool UPPER;
+typedef unsigned int OFFSET;
+typedef unsigned char UCHAR;
 class linked_list;
 
 class DfaNode {
 public:
-	virtual int match(Ebuf& ebuf, unsigned int startOffset) const = 0;
+	virtual int match(Ebuf& ebuf, OFFSET startOffset,
+			  Ebuf& lazyChar) const = 0;
 	virtual DfaNode* clone () = 0;
 };
 
 class SingleWordNode : public DfaNode {
 public:
-	SingleWordNode(unsigned char from, unsigned char to, bool IsNotExp);
-	
+	SingleWordNode(UCHAR* from, UCHAR* to, bool IsNotExp, bool IsRange);
+	SingleWordNode (SingleWordNode& source);
+	~SingleWordNode ();
 	/* implement DfaNode */
-	int match(Ebuf& ebuf, unsigned int startOffset) const;
+	int match(Ebuf& ebuf, OFFSET startOffset,
+		  Ebuf& lazyChar) const;
+	
 	DfaNode* clone ();
 	
 	static DfaNode* getDotNode();
@@ -29,10 +35,13 @@ public:
 	static DfaNode* getDigitNode(const UPPER IsUpper);
 	static SingleWordNode* getBoundaryNode(const UPPER IsUpper);
 
-private:
-	const unsigned char from;
-	const unsigned char to;
-	const bool IsNotExp;
+
+	Ebuf* from;
+	Ebuf* to;
+	//unsigned int m_length;
+	bool IsNotExp;
+	bool IsUTF8;
+	bool IsRange;
 };
 
 
@@ -41,7 +50,8 @@ public:
 	ConcatNode(linked_list* token_list);
 	~ConcatNode();
 	
-	int match(Ebuf& ebuf, unsigned int startOffset) const;
+	int match(Ebuf& ebuf, OFFSET startOffset,
+		  Ebuf& lazyChar) const;
 	DfaNode* clone ();
 	
 private:
@@ -49,15 +59,14 @@ private:
 
 };
 
-/*
 class StarNode : public DfaNode {
 public:
 	StarNode (DfaNode* token);
 	~StarNode ();
-	int match (Ebuf& buf, unsigned int startOffset);
+	int match (Ebuf& buf, OFFSET startOffset, Ebuf& lazyChar) const;
 	DfaNode* clone ();
 private:
 	DfaNode* token;
 };
-*/
+
 #endif /* _DFA_H_ */

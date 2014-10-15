@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <string.h>
 #include "Ebuf.h"
 #include "linked_list.h"
 #include "Dfa.h"
@@ -8,7 +9,7 @@ using namespace std;
 
 int main(int argc, const char *argv[])
 {
-	char buf [] = "010*a\n";
+	unsigned char buf [] = "010b\n";
 	Ebuf ebuf0 (buf);
 	Ebuf ebuf1 (ebuf0);
 	Ebuf ebuf2 = ebuf1;
@@ -19,21 +20,25 @@ int main(int argc, const char *argv[])
 		printf ("%c", ch);
 		i++;
 	}
-	
-	linked_list* token_list = new linked_list<DfaNode> ();
-	DfaNode* allSingle = SingleWordNode::getDotNode ();
+
+	linked_list* token_list = new linked_list ();
+	DfaNode* allSingle = new SingleWordNode ((UCHAR*)"", (UCHAR*)"", true, false);
+	DfaNode* hanSingle = new SingleWordNode ((UCHAR*)"a", (UCHAR*) "a", true, false);
 	DfaNode* singleDigit = SingleWordNode::getDigitNode (false);
 	//linked_node<SingleWordNode>* token2 = new linked_node<SingleWordNode> ((SingleWordNode*)singleDigit);
 	
 	token_list -> insert (singleDigit);
 	token_list -> insert (singleDigit);
-	token_list -> insert (allSingle);
-	token_list -> insert (allSingle);
+	token_list -> insert (singleDigit);
+	//token_list -> insert (allSingle);
+	token_list -> insert (hanSingle);
 	
 	DfaNode* concat = new ConcatNode (token_list);
-	cout << "match : " << concat -> match (ebuf0, 0) << endl;
+	Ebuf* nullBuf = new Ebuf ((unsigned char*)"0");
+	cout << "match : " << concat -> match (ebuf0, 0, *nullBuf) << endl;
 	delete token_list;
 	
+	delete hanSingle;
 	delete allSingle;
 	delete singleDigit;
 	

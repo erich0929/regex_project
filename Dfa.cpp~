@@ -1,22 +1,146 @@
 #include "Dfa.h"
 #include "linked_list.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
 
-SingleWordNode::SingleWordNode(unsigned char from, unsigned char to, bool IsNotExp)
-: from(from), to(to), IsNotExp(IsNotExp)
+SingleWordNode::SingleWordNode(UCHAR* from, UCHAR* to, bool IsNotExp, bool IsRange)
+/* : from(from), to(to), IsNotExp(IsNotExp) */
 {
-
+		unsigned int length = 0;
+		
+		/* form  
+		length = strlen ((char*)from);
+		this -> from = (UCHAR*) malloc (sizeof (UCHAR) * (length + 1));
+		strncpy ((char*)this -> from, (char*)from, length + 1);
+		 */
+		this -> from = new Ebuf (from);
+		/* to 
+		length = strlen ((char*)to);
+		this -> to = (UCHAR*) malloc (sizeof (UCHAR) * (length + 1));
+		strncpy ((char*)this -> to, (char*)to, length + 1);
+		*/
+		this -> to = new Ebuf (to);
+		/* m_length */
+		//this -> m_length = length;
+		/* IsNotExp */
+		this -> IsNotExp = IsNotExp;
+		/* IsUTF8 */
+		std::cout << this -> from -> getLength () << std::endl;
+		this -> IsUTF8 = (((this -> from -> getLength ()) == 1) ? false : true) ; 
+		
+		this -> IsRange = IsRange;
+		
 }
 
-int SingleWordNode::match(Ebuf& ebuf, unsigned int startOffset) const
+SingleWordNode::SingleWordNode(SingleWordNode& source) {
+		
+		//unsigned int length = 0;
+		/* form 
+		length = strlen ((char*)source.from);
+		this -> from = (UCHAR*) malloc (sizeof (UCHAR) * (length + 1));
+		strncpy ((char*)this -> from, (char*)source.from, length + 1);
+		 */
+		/* 
+		 * to 
+		length = strlen ((char*)source.to);
+		this -> to = (UCHAR*) malloc (sizeof (UCHAR) * (length + 1));
+		strncpy ((char*)this -> to, (char*)source.to, length + 1);
+		 */
+		/* m_length */
+		//this -> m_length = source.m_length;
+		this -> from = new Ebuf (*source.from);
+		this -> to = new Ebuf (*source.to);
+		/* IsNotExp */
+		this -> IsNotExp = source.IsNotExp;
+		/* IsUTF8 */
+		this -> IsUTF8 = source.IsUTF8;
+		this -> IsRange = source.IsRange;
+}
+
+SingleWordNode::~SingleWordNode () {
+		delete this -> from;
+		delete this -> to;
+}
+
+int SingleWordNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const
 {
-		unsigned char current = ebuf.getNext(startOffset);
+		UCHAR current = ebuf.getNext(startOffset);
 		bool IsAccept = false;
-
-		if (current >= from && current <= to) IsAccept = true;
-		IsNotExp ? IsAccept = !IsAccept : IsAccept;
-
-		return IsAccept ? 1 : -1;
+		
+		/* ASCII Range Mode */
+		/*
+		if (!(this -> IsUTF8)) {
+				std::cout << "Not UTF8" << std::endl;
+				if (current >= from -> getNext (0) && current <= to -> getNext (0)) IsAccept = true;
+				IsNotExp ? IsAccept = !IsAccept : IsAccept;
+				
+				// if IsAccept and IsLazyChar , then return 0 
+				if (IsAccept && current == lazyChar.getNext(0)) {
+						std::cout << "lazyChar accepted" << std::endl;
+						return 0;
+				}
+				return IsAccept ? 1 : -1;
+		} else {
+		*/
+				/* case : Mutibytes and just 'from' char (string) to be used. */
+				int i = 0;
+				OFFSET acceptedOffset = 0;
+				bool IsLazyAccepted = true;
+				unsigned int lazyCount = 0;
+				unsigned int charSize = 0;
+				/**
+				if (from -> getNext (0) == '\0' && IsNotExp == true && current <= 128) {
+					charSize = 1; /* ASCII MODE 
+				} else {
+					charSize = from -> getLength ();
+				} /* Mutibytes Mode 
+				**/
+				
+				if (IsNotExp) {
+					/* criterion to buffer */
+					(current < 128) ? charSize = 1 : charSize = 3;
+				} else {
+					/* criterion to from */
+					charSize = from -> getLength ();
+					
+				}
+				std::cout << "charsize :" << charSize << std::endl;
+				for (i = 0; /*i < this -> from -> getLength ()*/charSize < charSize; i++) {
+						current = ebuf.getNext (startOffset + i);
+						std::cout << "\tcurrent : " << current << std::endl;
+						std::cout << "\tfrom -> getNext (i) : " << from -> getNext (i) << std::endl;
+						if (this -> IsRange) {
+							if (current >= from -> getNext (0) && current <= to -> getNext (0)) IsAccept = true;
+						} else {
+							(current == from -> getNext (i)) ? IsAccept = true : IsAccept = false; 
+						}
+						IsNotExp ? IsAccept = !IsAccept : IsAccept;
+						std::cout << "let's determine. : " << IsAccept << std::endl;
+						if (IsAccept) {
+								acceptedOffset += 1;
+						} else {
+								std::cout << IsAccept << std::endl;
+								return -1;
+						}
+						if ((current == lazyChar.getNext(lazyCount)) && IsLazyAccepted
+								&& IsAccept) {
+									lazyCount ++;
+						} else {
+								IsLazyAccepted = false;
+						}
+				}
+				/* if IsAccept and IsLazyChar , then return 0 */
+				if (IsLazyAccepted) {
+						std::cout << "is lazy" << std::endl;
+						return 0;
+				} else {
+						std::cout << "is not lazy" << std::endl;
+						return acceptedOffset;
+				}
+				/*
+		}*/
 }
 
 DfaNode* SingleWordNode::clone () {
@@ -25,17 +149,17 @@ DfaNode* SingleWordNode::clone () {
 
 DfaNode* SingleWordNode::getDotNode()
 {
-		return new SingleWordNode('\0', '\0', true);
+		return new SingleWordNode((UCHAR*)"", (UCHAR*)"", true, false);
 }
 
 DfaNode* SingleWordNode::getDigitNode(const UPPER IsUpper)
 {
-		return new SingleWordNode('0', '9', IsUpper);
+		return new SingleWordNode((UCHAR*)"0", (UCHAR*)"9", IsUpper, true);
 }
 
 SingleWordNode* SingleWordNode::getBoundaryNode(const UPPER IsUpper)
 {
-		return new SingleWordNode(' ', ' ', IsUpper);
+		return new SingleWordNode((UCHAR*)" ", (UCHAR*)" ", IsUpper, false);
 }
 
 /* implement ConcatNode */
@@ -59,20 +183,36 @@ ConcatNode::~ConcatNode()
 }
 
 
-int ConcatNode::match(Ebuf& ebuf, unsigned int startOffset) const
+int ConcatNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const
 {
 		this -> token_list -> setNewIterator();
 		Iterator& iter = *(this -> token_list);
-		unsigned int acceptedOffset = 0;
-		unsigned int offset = 0;
+		OFFSET acceptedOffset = 0;
+		OFFSET offset = 0;
 		linked_node* temp;
 		DfaNode* token;
+		
+		/* The first token's considerred as lazyChar. */
+		if (iter.hasNext()) {
+				token = iter.next() -> getData ();
+				if ((offset = token -> match (ebuf, startOffset, lazyChar)) == 0) {
+						return 0;
+				} else {
+						acceptedOffset += offset;
+				}
+		}
+		
+		Ebuf* nullBuf = new Ebuf ((UCHAR*)"");
 		while (iter.hasNext()) {
 				temp = iter.next();
 				token = temp -> getData();
-				if ((offset = token -> match(ebuf, acceptedOffset)) == -1) return -1;
+				if ((offset = token -> match(ebuf, startOffset + acceptedOffset, *nullBuf)) == -1) {
+						delete nullBuf;
+						return -1;
+				}
 				acceptedOffset += offset;
 		}
+		delete nullBuf;
 		return acceptedOffset;
 }
 
@@ -84,9 +224,42 @@ DfaNode* ConcatNode::clone () {
 /* implement StarNode */
 
 StarNode::StarNode(DfaNode* token) {
-		//this -> token = new DfaNode (*token);
+		this -> token = token -> clone ();
 }
 
+StarNode::~StarNode () {
+		delete this -> token;
+}
+
+int StarNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const {
+		OFFSET acceptedOffset = 0;
+		OFFSET offset = 0;
+		UCHAR current;
+		while ((offset = this -> token -> 
+				match (ebuf, startOffset + acceptedOffset, lazyChar)) != 0) {
+		
+				acceptedOffset += offset;
+		}
+		/* Don't care if lazyChar == NULL. */
+		OFFSET lazyOffset = 0;
+		OFFSET lazyAccepted = 0;
+		UCHAR lazyCurrent;
+		
+		while ((lazyCurrent = lazyChar.getNext(lazyOffset)) != '\0') {
+				current = ebuf.getNext (startOffset + acceptedOffset + lazyOffset);
+				if (current == lazyCurrent) {
+						lazyAccepted += 1;
+				} else {
+						return -1;
+				}
+				lazyOffset ++;
+		}
+		return acceptedOffset + lazyAccepted;
+}
+
+DfaNode* StarNode::clone () {
+		return new StarNode (*this);
+}
 
 //template class ConcatNode ;
 //template class StarNode ;

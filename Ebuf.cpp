@@ -3,11 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-Ebuf::Ebuf (char* source) {
-	unsigned int length = strlen (source);
+
+
+Ebuf::Ebuf (unsigned char* source) {
+	unsigned int length = strlen ((char*)source);
 	this -> m_length = length;
-	this -> m_buf = (char*) malloc (sizeof (char) * (this -> m_length + 1));
-	strncpy (this -> m_buf, source, this -> m_length + 1);
+	this -> m_buf = (unsigned char*) malloc (sizeof (unsigned char) * (this -> m_length + 1));
+	strncpy ((char*)this -> m_buf, (char*)source, this -> m_length + 1);
 	
 	this -> m_offset = 0;
 }
@@ -38,14 +40,14 @@ unsigned int Ebuf::getLength () const {
 	return this -> m_length;
 }
 
-char* Ebuf::getBuffer () const {
-	char* res;
-	res = (char*) malloc (sizeof (char) * (this -> m_length + 1));
-	strncpy (res, this -> m_buf, this -> m_length + 1);
+unsigned char* Ebuf::getBuffer () const {
+	unsigned char* res;
+	res = (unsigned char*) malloc (sizeof (unsigned char) * (this -> m_length + 1));
+	strncpy ((char*)res, (char*) (this -> m_buf), this -> m_length + 1);
 	return res;
 }
 
-char Ebuf::getNext (unsigned int offset) const{
+unsigned char Ebuf::getNext (unsigned int offset) const{
 	if ((this -> m_offset + offset) > this -> m_length) {
 		return '\0';
 	} else {
