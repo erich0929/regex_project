@@ -48,7 +48,7 @@ SingleWordNode::~SingleWordNode () {
 		delete this -> to;
 }
 
-int SingleWordNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const
+int SingleWordNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const
 {
 		UCHAR current = ebuf.getNext(startOffset);
 		bool IsAccept = true;
@@ -77,7 +77,7 @@ int SingleWordNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const
 						(current == from -> getNext(i)) ? IsAccept = true : IsAccept = false;
 				}
 
-				if ((current == lazyChar.getNext(lazyCount)) && IsLazyAccepted) {
+				if ((current == lazyChar -> getNext(lazyCount)) && IsLazyAccepted) {
 						lazyCount++;
 				} else {
 						IsLazyAccepted = false;
@@ -140,7 +140,7 @@ ConcatNode::~ConcatNode()
 }
 
 
-int ConcatNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const
+int ConcatNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const
 {
 		this -> token_list -> setNewIterator();
 		Iterator& iter = *(this -> token_list);
@@ -159,17 +159,17 @@ int ConcatNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const
 				}
 		}
 		
-		Ebuf* nullBuf = new Ebuf ((UCHAR*)"");
+		Ebuf nullBuf ((UCHAR*)"");
 		while (iter.hasNext()) {
 				temp = iter.next();
 				token = temp -> getData();
-				if ((offset = token -> match(ebuf, startOffset + acceptedOffset, *nullBuf)) == -1) {
-						delete nullBuf;
+				if ((offset = token -> match(ebuf, startOffset + acceptedOffset, &nullBuf)) == -1) {
+						
 						return -1;
 				}
 				acceptedOffset += offset;
 		}
-		delete nullBuf;
+		
 		return acceptedOffset;
 }
 
@@ -190,7 +190,11 @@ StarNode::~StarNode () {
 		delete this -> pLazyChar;
 }
 
-int StarNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const {
+int StarNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const {
+
+		/* if lazyChar is null, then lazyChar is it's own lazyChar (this -> lazyChar) */
+		if (lazyChar == NULL) lazyChar = this -> pLazyChar;
+		
 		OFFSET acceptedOffset = 0;
 		int offset = 0;
 		UCHAR current;
@@ -204,9 +208,9 @@ int StarNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const {
 		OFFSET lazyAccepted = 0;
 		UCHAR lazyCurrent;
 	
-		SingleWordNode lazyToken (&lazyChar, &lazyChar, false, false);
+		SingleWordNode lazyToken (lazyChar, lazyChar, false, false);
 		Ebuf nullToken ((UCHAR*) "");
-		if ((lazyAccepted = lazyToken.match (ebuf, startOffset + acceptedOffset, nullToken)) < 0) return -1;
+		if ((lazyAccepted = lazyToken.match (ebuf, startOffset + acceptedOffset, &nullToken)) < 0) return -1;
 		
 		return acceptedOffset + lazyAccepted;
 }
@@ -222,13 +226,13 @@ PlusNode::PlusNode (DfaNode* token, Ebuf* pLazyChar) : StarNode (token , pLazyCh
 PlusNode::~PlusNode () {
 	/* nothing to do */
 }
-int PlusNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const {
+int PlusNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const {
 		OFFSET acceptedOffset = 0;
 		int offset = 0;
 		UCHAR current;
 		
 		Ebuf nullBuf ((UCHAR*)"");
-		if ((acceptedOffset = this -> token -> match (ebuf, startOffset, nullBuf)) == -1) return -1;
+		if ((acceptedOffset = this -> token -> match (ebuf, startOffset, &nullBuf)) == -1) return -1;
 		
 		while ((offset = this -> token -> 
 				match (ebuf, startOffset + acceptedOffset, lazyChar)) > 0) {
@@ -240,9 +244,9 @@ int PlusNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const {
 		OFFSET lazyAccepted = 0;
 		UCHAR lazyCurrent;
 	
-		SingleWordNode lazyToken (&lazyChar, &lazyChar, false, false);
+		SingleWordNode lazyToken (lazyChar, lazyChar, false, false);
 		Ebuf nullToken ((UCHAR*) "");
-		if ((lazyAccepted = lazyToken.match (ebuf, startOffset + acceptedOffset, nullToken)) < 0) return -1;
+		if ((lazyAccepted = lazyToken.match (ebuf, startOffset + acceptedOffset, &nullToken)) < 0) return -1;
 		
 		return acceptedOffset + lazyAccepted;
 }

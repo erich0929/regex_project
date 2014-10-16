@@ -40,7 +40,7 @@ int main(int argc, const char *argv[])
 	
 	StarNode digitStar (concat, &nullBuf);
 	cout << "regex : .*?김, input : " << buf << "result : " << 
-	digitStar.match (ebuf0, 0, *(digitStar.pLazyChar)) << endl;
+	digitStar.match (ebuf0, 0, NULL) << endl;
 	delete token_list;
 	
 	delete hanSingle;

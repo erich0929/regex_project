@@ -10,8 +10,7 @@ class linked_list;
 
 class DfaNode {
 public:
-	virtual int match(Ebuf& ebuf, OFFSET startOffset,
-			  Ebuf& lazyChar) const = 0;
+	virtual int match(Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const = 0;
 	virtual DfaNode* clone () = 0;
 };
 
@@ -22,8 +21,7 @@ public:
 	SingleWordNode (SingleWordNode& source);
 	~SingleWordNode ();
 	/* implement DfaNode */
-	int match(Ebuf& ebuf, OFFSET startOffset,
-		  Ebuf& lazyChar) const;
+	int match(Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const;
 	
 	DfaNode* clone ();
 	
@@ -52,7 +50,7 @@ public:
 	~ConcatNode();
 	
 	int match(Ebuf& ebuf, OFFSET startOffset,
-		  Ebuf& lazyChar) const;
+		  Ebuf* lazyChar) const;
 	DfaNode* clone ();
 	
 private:
@@ -64,7 +62,7 @@ class StarNode : public DfaNode {
 public:
 	StarNode (DfaNode* token, Ebuf* pLazyChar);
 	~StarNode ();
-	virtual int match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const;
+	virtual int match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const;
 	DfaNode* clone ();
 	
 	Ebuf* pLazyChar;
@@ -77,20 +75,7 @@ public :
 	PlusNode (DfaNode* token, Ebuf* pLazyChar);
 	~PlusNode ();
 	PlusNode (Ebuf);
-	int match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const;
+	int match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const;
 };
-/*
-class PlusNode : public DfaNode {
-public :
-	PlusNode ();
-	PlusNode (PlusNode& source);
-	~PlusNode ();
-	int match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const;
-	DfaNode* clone ();
-	
-	Ebuf* pLazyChar;
-private:
-        DfaNode* token;
-};
- */
+
 #endif /* _DFA_H_ */

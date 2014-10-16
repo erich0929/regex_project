@@ -39,8 +39,8 @@ int main(int argc, const char *argv[])
 	//cout << "match : " << concat -> match (ebuf0, 0, nullBuf) << endl;
 	
 	StarNode digitStar (concat, &nullBuf);
-	cout << "regex : .+?김, input : " << buf << "result : " << 
-	digitStar.match (ebuf0, 0, *(digitStar.pLazyChar)) << endl;
+	cout << "regex : .*?김, input : " << buf << "result : " << 
+	digitStar.match (ebuf0, 0, (digitStar.pLazyChar)) << endl;
 	delete token_list;
 	
 	delete hanSingle;
