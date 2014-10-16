@@ -9,7 +9,7 @@ using namespace std;
 
 int main(int argc, const char *argv[])
 {
-	unsigned char buf [] = "1004\n";
+	unsigned char buf [] = "11수김혜\n";
 	Ebuf ebuf0 (buf);
 	Ebuf ebuf1 (ebuf0);
 	Ebuf ebuf2 = ebuf1;
@@ -27,20 +27,20 @@ int main(int argc, const char *argv[])
 	DfaNode* singleDigit = SingleWordNode::getDigitNode (false);
 	//linked_node<SingleWordNode>* token2 = new linked_node<SingleWordNode> ((SingleWordNode*)singleDigit);
 	
-	token_list -> insert (singleDigit);
-	token_list -> insert (singleDigit);
+	//token_list -> insert (singleDigit);
+	//token_list -> insert (singleDigit);
 	//token_list -> insert (singleDigit);
 	
 	token_list -> insert (allSingle);
-	token_list -> insert (hanSingle);
+	//token_list -> insert (hanSingle);
 	
 	DfaNode* concat = new ConcatNode (token_list);
-	Ebuf nullBuf ((unsigned char*)"1");
+	Ebuf nullBuf ((unsigned char*)"김");
 	//cout << "match : " << concat -> match (ebuf0, 0, nullBuf) << endl;
 	
-	StarNode digitStar (concat);
-	cout << "regex : ([0-9][0-9].강)*?1, input : " << buf << "result : " << 
-		digitStar.match (ebuf0, 0, nullBuf) << endl;
+	StarNode digitStar (concat, &nullBuf);
+	cout << "regex : .*?김, input : " << buf << "result : " << 
+	digitStar.match (ebuf0, 0, *(digitStar.pLazyChar)) << endl;
 	delete token_list;
 	
 	delete hanSingle;
