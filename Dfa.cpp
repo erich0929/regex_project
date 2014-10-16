@@ -34,6 +34,16 @@ SingleWordNode::SingleWordNode(UCHAR* from, UCHAR* to, bool IsNotExp, bool IsRan
 		
 }
 
+SingleWordNode::SingleWordNode (Ebuf* from ,Ebuf* to, bool IsNotExp, bool IsRange) {
+		this -> from = new Ebuf (*from);
+		this -> to = new Ebuf (*to);
+		this -> IsNotExp = IsNotExp;
+		/* IsUTF8 */
+		this -> IsUTF8 = (((this -> from -> getLength ()) == 1) ? false : true) ; 
+		
+		this -> IsRange = IsRange;
+}
+
 SingleWordNode::SingleWordNode(SingleWordNode& source) {
 		
 		//unsigned int length = 0;
@@ -109,10 +119,10 @@ int SingleWordNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const
 				std::cout << "charsize :" << charSize << std::endl;
 				for (i = 0; /*i < this -> from -> getLength ()*/(i < charSize) && (IsAccept) ; i++) {
 						current = ebuf.getNext (startOffset + i);
-						std::cout << "\tcurrent : " << current << std::endl;
-						std::cout << "\tfrom -> getNext (i) : " << from -> getNext (i) << std::endl;
+						
 						if (this -> IsRange) {
-							if (current >= from -> getNext (0) && current <= to -> getNext (0)) IsAccept = true;
+							printf ("from : %d, to : %d, current : %d\n", from -> getNext (0), to -> getNext (0), current);
+							(current >= from -> getNext (0) && current <= to -> getNext (0)) ? IsAccept = true : IsAccept = false;
 						} else {
 							(current == from -> getNext (i)) ? IsAccept = true : IsAccept = false; 
 						}
@@ -235,11 +245,11 @@ StarNode::~StarNode () {
 
 int StarNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const {
 		OFFSET acceptedOffset = 0;
-		OFFSET offset = 0;
+		int offset = 0;
 		UCHAR current;
 		while ((offset = this -> token -> 
-				match (ebuf, startOffset + acceptedOffset, lazyChar)) != 0) {
-		
+				match (ebuf, startOffset + acceptedOffset, lazyChar)) > 0) {
+				printf ("StarNode loop ; offset : %d\n", offset);
 				acceptedOffset += offset;
 		}
 		/* Don't care if lazyChar == NULL. */
@@ -247,6 +257,7 @@ int StarNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const {
 		OFFSET lazyAccepted = 0;
 		UCHAR lazyCurrent;
 		
+		/*
 		while ((lazyCurrent = lazyChar.getNext(lazyOffset)) != '\0') {
 				current = ebuf.getNext (startOffset + acceptedOffset + lazyOffset);
 				if (current == lazyCurrent) {
@@ -256,6 +267,11 @@ int StarNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const {
 				}
 				lazyOffset ++;
 		}
+		*/
+		SingleWordNode lazyToken (&lazyChar, &lazyChar, false, false);
+		Ebuf nullToken ((UCHAR*) "");
+		if ((lazyAccepted = lazyToken.match (ebuf, startOffset + acceptedOffset, nullToken)) < 0) return -1;
+		
 		return acceptedOffset + lazyAccepted;
 }
 

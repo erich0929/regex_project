@@ -18,6 +18,7 @@ public:
 class SingleWordNode : public DfaNode {
 public:
 	SingleWordNode(UCHAR* from, UCHAR* to, bool IsNotExp, bool IsRange);
+	SingleWordNode (Ebuf* from, Ebuf* to, bool IsNotExp, bool IsRange);
 	SingleWordNode (SingleWordNode& source);
 	~SingleWordNode ();
 	/* implement DfaNode */
