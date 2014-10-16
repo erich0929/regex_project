@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <iostream>
+#include <iostream>
 
 SingleWordNode::SingleWordNode(UCHAR* from, UCHAR* to, bool IsNotExp, bool IsRange)
 /* : from(from), to(to), IsNotExp(IsNotExp) */
@@ -71,12 +71,11 @@ int SingleWordNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const
 		for (i = 0; (i < charSize) && (IsAccept); i++) {
 				current = ebuf.getNext(startOffset + i);
 				if (this -> IsRange) {
-						//printf ("from : %d, to : %d, current : %d\n", from -> getNext (0), to -> getNext (0), current);
 						(current >= from -> getNext(0) && current <= to -> getNext(0)) ? IsAccept = true : IsAccept = false;
 				} else {
 						(current == from -> getNext(i)) ? IsAccept = true : IsAccept = false;
 				}
-
+				printf ("from : %c, to : %c, current : %c\n", from -> getNext (0), to -> getNext (0), current);
 				if ((current == lazyChar -> getNext(lazyCount)) && IsLazyAccepted) {
 						lazyCount++;
 				} else {
@@ -85,17 +84,18 @@ int SingleWordNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const
 		}
 
 		IsNotExp ? IsAccept = !IsAccept : IsAccept;
+		std::cout << "IsAccepted ? :" << IsAccept << std::endl;
 		if (IsAccept) {
 				acceptedOffset += charSize;
 		} else {
-				//std::cout << IsAccept << std::endl;
+				
 				return -1;
 		}
 		if (IsLazyAccepted && IsAccept) {
-				//std::cout << "is lazy" << std::endl;
+				std::cout << "is lazy" << std::endl;
 				return 0;
 		} else {
-				//std::cout << "is not lazy" << std::endl;
+				std::cout << "is not lazy" << std::endl;
 				return acceptedOffset;
 		}
 }
@@ -133,19 +133,17 @@ ConcatNode::ConcatNode(linked_list* token_list) : token_list(NULL)
 		this -> token_list = new linked_list (*token_list); /* 복사생성자의 이용 */
 }
 
-
 ConcatNode::~ConcatNode()
 {
 		delete this -> token_list;
 }
 
-
-int ConcatNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const
-{
+int ConcatNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const {
+		printf ("let's start concatnode match\n");
 		this -> token_list -> setNewIterator();
 		Iterator& iter = *(this -> token_list);
 		OFFSET acceptedOffset = 0;
-		OFFSET offset = 0;
+		int offset = 0;
 		linked_node* temp;
 		DfaNode* token;
 		
@@ -154,7 +152,9 @@ int ConcatNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const
 				token = iter.next() -> getData ();
 				if ((offset = token -> match (ebuf, startOffset, lazyChar)) == 0) {
 						return 0;
-				} else {
+				} else if (offset == -1) {
+						return -1;
+				} else if (offset > 0) {
 						acceptedOffset += offset;
 				}
 		}
@@ -178,6 +178,53 @@ DfaNode* ConcatNode::clone () {
 		return new ConcatNode (*this);
 }
 
+/* implements AlterNode */
+AlterNode::AlterNode(linked_list* token_list, bool IsNotExp) : ConcatNode (token_list) {
+		this -> IsNotExp = IsNotExp;		
+}
+
+AlterNode::AlterNode (AlterNode& source) : ConcatNode (source) {
+		this -> IsNotExp = source.IsNotExp;
+}
+AlterNode::~AlterNode () {
+		/* nothing to do */
+}
+
+int AlterNode::match(Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const {
+		printf ("let's start alternode match\n");
+		this -> token_list -> setNewIterator();
+		Iterator& iter = *(this -> token_list);
+		int acceptedOffset = 0;
+		//OFFSET offset = 0;
+		linked_node* temp;
+		DfaNode* token;
+		
+		bool IsAccepted = false;
+		//bool IsLazy = false;
+		//Ebuf nullBuf ((UCHAR*)"");
+		while (iter.hasNext() && !IsAccepted) {
+				printf ("let's next\n");
+				temp = iter.next();
+				printf ("let's getData\n");
+				token = temp -> getData();
+				if ((acceptedOffset = token -> match(ebuf, startOffset, lazyChar)) >= 0) {
+						printf ("found\n");
+						IsAccepted = true;
+						//if (acceptedOffset == 0) IsLazy = true;
+				}
+		}
+		//IsNotExp ? IsAccepted = !IsAccepted : IsAccepted;
+		printf ("AlterNode : IsAccepted : %d, acceptedOffset : %d\n", IsAccepted, acceptedOffset);
+		if (IsAccepted) {
+				return acceptedOffset;
+		} else{
+				return -1;
+		}
+}
+
+DfaNode* AlterNode::clone() {
+		return new AlterNode (*this);
+}
 /* implement StarNode */
 
 StarNode::StarNode(DfaNode* token, Ebuf* pLazyChar) {
@@ -195,7 +242,7 @@ int StarNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const {
 		/* if lazyChar is null, then lazyChar is it's own lazyChar (this -> lazyChar) */
 		if (lazyChar == NULL) lazyChar = this -> pLazyChar;
 		
-		OFFSET acceptedOffset = 0;
+		int acceptedOffset = 0;
 		int offset = 0;
 		UCHAR current;
 		while ((offset = this -> token -> 
@@ -203,6 +250,7 @@ int StarNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const {
 				printf ("StarNode loop ; offset : %d\n", offset);
 				acceptedOffset += offset;
 		}
+		printf ("end loop : acceptedOffset : %d\n", acceptedOffset);
 		/* Don't care if lazyChar == NULL. */
 		OFFSET lazyOffset = 0;
 		OFFSET lazyAccepted = 0;
@@ -219,6 +267,8 @@ DfaNode* StarNode::clone () {
 		return new StarNode (*this);
 }
 
+	/* implements PlusNode */
+
 PlusNode::PlusNode (DfaNode* token, Ebuf* pLazyChar) : StarNode (token , pLazyChar) {
 	/* nothing to do */
 }
@@ -227,6 +277,10 @@ PlusNode::~PlusNode () {
 	/* nothing to do */
 }
 int PlusNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const {
+		printf ("plusnode match start\n");
+		/* if lazyChar is null, then lazyChar is it's own lazyChar (this -> lazyChar) */
+		if (lazyChar == NULL) lazyChar = this -> pLazyChar;
+		
 		OFFSET acceptedOffset = 0;
 		int offset = 0;
 		UCHAR current;
@@ -249,6 +303,10 @@ int PlusNode::match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const {
 		if ((lazyAccepted = lazyToken.match (ebuf, startOffset + acceptedOffset, &nullToken)) < 0) return -1;
 		
 		return acceptedOffset + lazyAccepted;
+}
+
+DfaNode* PlusNode::clone() {
+		return new PlusNode (*this);
 }
 //template class ConcatNode ;
 //template class StarNode ;

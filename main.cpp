@@ -9,7 +9,7 @@ using namespace std;
 
 int main(int argc, const char *argv[])
 {
-	unsigned char buf [] = "11수김혜\n";
+	unsigned char buf [] = "<ab>b<a>";
 	Ebuf ebuf0 (buf);
 	Ebuf ebuf1 (ebuf0);
 	Ebuf ebuf2 = ebuf1;
@@ -20,32 +20,44 @@ int main(int argc, const char *argv[])
 		printf ("%c", ch);
 		i++;
 	}
-
+	printf ("\n");
 	linked_list* token_list = new linked_list ();
-	DfaNode* allSingle = new SingleWordNode ((UCHAR*)"", (UCHAR*)"", true, false);
-	DfaNode* hanSingle = new SingleWordNode ((UCHAR*)"강", (UCHAR*) "강", false, false);
-	DfaNode* singleDigit = SingleWordNode::getDigitNode (false);
+	DfaNode* atoken = new SingleWordNode ((UCHAR*)"a", (UCHAR*)"a", false, false);
+	DfaNode* btoken = new SingleWordNode ((UCHAR*)"b", (UCHAR*) "b", false, false);
+	DfaNode* arrowR = new SingleWordNode ((UCHAR*) "<", (UCHAR*) "<", false, false);
+	DfaNode* arrowL = new SingleWordNode ((UCHAR*) ">", (UCHAR*) ">", false, false);
 	//linked_node<SingleWordNode>* token2 = new linked_node<SingleWordNode> ((SingleWordNode*)singleDigit);
 	
 	//token_list -> insert (singleDigit);
 	//token_list -> insert (singleDigit);
 	//token_list -> insert (singleDigit);
 	
-	token_list -> insert (allSingle);
+	token_list -> insert (atoken);
+	token_list -> insert (btoken);
+	token_list -> insert (arrowR);
+	token_list -> insert (arrowL);
+	//token_list -> toString ();
+	//Iterator& iter = *token_list;
+	//linked_node* node;
+	//i = 0;
+	//while (iter.hasNext ()) {
+	//	node = iter.next ();
+	//	printf ("%d", i++);
+	//}
+	printf ("\n");
 	//token_list -> insert (hanSingle);
 	
-	DfaNode* concat = new ConcatNode (token_list);
-	Ebuf nullBuf ((unsigned char*)"김");
+	AlterNode alter (token_list, false);
+	Ebuf lazyBuf ((unsigned char*)">");
 	//cout << "match : " << concat -> match (ebuf0, 0, nullBuf) << endl;
 	
-	StarNode digitStar (concat, &nullBuf);
-	cout << "regex : .*?김, input : " << buf << "result : " << 
-	digitStar.match (ebuf0, 0, NULL) << endl;
-	delete token_list;
+	//alter.match(ebuf0, 0, &lazyBuf);
 	
-	delete hanSingle;
-	delete allSingle;
-	delete singleDigit;
+	DfaNode* digitStar = new PlusNode (&alter, &lazyBuf);
+	//StarNode real (*digitStar);
+	cout << "regex : [ab<>]*?>, input : " << buf << "result : " << 
+	digitStar -> match (ebuf0, 0, NULL) << endl;
+
 	
 	
 	

@@ -47,15 +47,24 @@ public:
 class ConcatNode : public DfaNode {
 public:
 	ConcatNode(linked_list* token_list);
-	~ConcatNode();
+	virtual ~ConcatNode();
 	
-	int match(Ebuf& ebuf, OFFSET startOffset,
-		  Ebuf* lazyChar) const;
-	DfaNode* clone ();
+	virtual int match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const;
+	virtual DfaNode* clone ();
 	
-private:
+protected:
 	linked_list* token_list;
 
+};
+
+class AlterNode : public ConcatNode {
+public :
+	AlterNode (linked_list* token_list, bool IsNotExp);
+	AlterNode (AlterNode& source);
+	~AlterNode ();
+	int match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const;
+	DfaNode* clone ();
+	bool IsNotExp;
 };
 
 class StarNode : public DfaNode {
@@ -63,7 +72,7 @@ public:
 	StarNode (DfaNode* token, Ebuf* pLazyChar);
 	~StarNode ();
 	virtual int match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const;
-	DfaNode* clone ();
+	virtual DfaNode* clone ();
 	
 	Ebuf* pLazyChar;
 protected:
@@ -74,8 +83,9 @@ class PlusNode : public StarNode {
 public :
 	PlusNode (DfaNode* token, Ebuf* pLazyChar);
 	~PlusNode ();
-	PlusNode (Ebuf);
+	//PlusNode (Ebuf);
 	int match (Ebuf& ebuf, OFFSET startOffset, Ebuf* lazyChar) const;
+	DfaNode* clone ();
 };
 
 #endif /* _DFA_H_ */
