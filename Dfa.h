@@ -62,12 +62,35 @@ private:
 
 class StarNode : public DfaNode {
 public:
-	StarNode (DfaNode* token);
+	StarNode (DfaNode* token, Ebuf* pLazyChar);
 	~StarNode ();
-	int match (Ebuf& buf, OFFSET startOffset, Ebuf& lazyChar) const;
+	virtual int match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const;
 	DfaNode* clone ();
-private:
+	
+	Ebuf* pLazyChar;
+protected:
 	DfaNode* token;
 };
 
+class PlusNode : public StarNode {
+public :
+	PlusNode (DfaNode* token, Ebuf* pLazyChar);
+	~PlusNode ();
+	PlusNode (Ebuf);
+	int match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const;
+};
+/*
+class PlusNode : public DfaNode {
+public :
+	PlusNode ();
+	PlusNode (PlusNode& source);
+	~PlusNode ();
+	int match (Ebuf& ebuf, OFFSET startOffset, Ebuf& lazyChar) const;
+	DfaNode* clone ();
+	
+	Ebuf* pLazyChar;
+private:
+        DfaNode* token;
+};
+ */
 #endif /* _DFA_H_ */
